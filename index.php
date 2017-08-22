@@ -57,15 +57,14 @@ $page =  htmlspecialchars($_GET['page']);
 
 $debut = ($page -1 )* 10;
 }else{
-    $debut = 1;
+    $debut = 10;
 }
-var_dump($page);
-var_dump($debut);
+
 $request = $conn->prepare( "SELECT * FROM messages ORDER BY id DESC LIMIT 10 OFFSET :debut");
 $request->bindValue('debut', $debut, PDO::PARAM_INT);
-$result = $request->execute();
-$data = $result->fetch();
-$data =  array_reverse($data);
+$request->execute();
+$result = $request->fetchAll();
+$data =  array_reverse($result);
 
 foreach ($data as $message){
 ?>
@@ -99,6 +98,17 @@ foreach ($data as $message){
                     </button>
                 </form>
                 <a href="javascript:window.location.reload()">Raffraichir la page</a>
+                <?php
+                $request = $conn->query("SELECT COUNT(*) FROM messages");
+                $nbMessages = $request->fetchColumn();
+
+                $nbpages = ceil($nbMessages/10);
+                for( $i =1; $i<=$nbpages; $i++){
+                    ?>
+                    <a href="http://localhost/Projet-miniChat/?page=<?= $i ?>">page <?= $i ?></a>
+                    <?php
+                }
+                ?>
             </div>
         </main>
     </div>
